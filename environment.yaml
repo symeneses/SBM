@@ -1,0 +1,11 @@
+name: sbm
+channels:
+- conda-forge
+- defaults
+dependencies:
+- ipykernel
+- pymc
+- python-graphviz
+- blackjax
+- numpyro
+- seaborn
