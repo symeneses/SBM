@@ -32,7 +32,7 @@ class Sampler:
         self.data = data
         self.pymc_samplers = pymc_samplers
 
-    def fit(self, model, draws: int, tune: int, chains: int,
+    def fit(self, model, draws: int, tune: int, chains: int, seed: int,
             model_args: Dict = {}) -> Tuple[List[az.InferenceData], Dict]:
         results = []
         type_ = Sampler._get_type(model)
@@ -43,7 +43,8 @@ class Sampler:
                     data, metrics = sampling_pymc(s,
                         draws=draws,
                         tune=tune,
-                        chains=chains)
+                        chains=chains,
+                        seed=seed)
                     results.append((s, data, metrics))
             return results
         if type_ == 2:
@@ -62,7 +63,7 @@ class Sampler:
 
 @monitor
 def sampling_pymc(sampler, draws: int, tune: int,
-                  chains: int) -> az.InferenceData:
+                  chains: int, seed:int) -> az.InferenceData:
     sampler_pymc = PYMC_SAMPLERS[sampler]
     extra_args = {}
     if 'cores' in  getfullargspec(sampler_pymc).args:
@@ -73,6 +74,7 @@ def sampling_pymc(sampler, draws: int, tune: int,
         draws=draws,
         tune=tune,
         chains=chains,
+        random_seed=seed,
         **extra_args,
         idata_kwargs={
             'log_likelihood': False})

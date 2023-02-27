@@ -13,13 +13,13 @@ class Handler:
         self.data = data
         self.pymc_samplers = pymc_samplers
 
-    def execute(self, draws: int, tune: int, chains: int) -> az.InferenceData:
+    def execute(self, draws: int, tune: int, chains: int, seed: int) -> az.InferenceData:
         sampler = Sampler(self.data, self.pymc_samplers)
         results = pd.DataFrame()
         infer_data = {}
         for n, m in self.models.items():
             print(f"Getting samples using libray {n}:\n")
-            samples = sampler.fit(m, draws, tune, chains)
+            samples = sampler.fit(m, draws, tune, chains, seed)
             for s in samples:
                 results.loc[f"{n}_{s[0]}", "library"] = n
                 results.loc[f"{n}_{s[0]}", "sampler"] = s[0]
