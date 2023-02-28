@@ -6,8 +6,8 @@ import tracemalloc
 def monitor(func):
     @functools.wraps(func)
     def wrapper_timer(*args, **kwargs):
-        tic = time.perf_counter()
         tracemalloc.start()
+        tic = time.perf_counter()
         value = func(*args, **kwargs)
         current_memory, peak_memory = tracemalloc.get_traced_memory()
         toc = time.perf_counter()
