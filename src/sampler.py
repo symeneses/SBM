@@ -63,12 +63,12 @@ class Sampler:
 
 @monitor
 def sampling_pymc(sampler, draws: int, tune: int,
-                  chains: int, seed:int) -> az.InferenceData:
+                  chains: int, seed: int) -> az.InferenceData:
     sampler_pymc = PYMC_SAMPLERS[sampler]
     extra_args = {}
-    if 'cores' in  getfullargspec(sampler_pymc).args:
-        extra_args['cores'] = os.cpu_count()
-    if 'progressbar' in  getfullargspec(sampler_pymc).args:
+    if 'cores' in getfullargspec(sampler_pymc).args:
+        extra_args['cores'] = min(os.cpu_count(), chains)
+    if 'progressbar' in getfullargspec(sampler_pymc).args:
         extra_args['progressbar'] = False
     data = PYMC_SAMPLERS[sampler](
         draws=draws,
