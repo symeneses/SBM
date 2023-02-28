@@ -13,7 +13,12 @@ class Handler:
         self.data = data
         self.pymc_samplers = pymc_samplers
 
-    def execute(self, draws: int, tune: int, chains: int, seed: int) -> az.InferenceData:
+    def execute(
+            self,
+            draws: int,
+            tune: int,
+            chains: int,
+            seed: int) -> az.InferenceData:
         sampler = Sampler(self.data, self.pymc_samplers)
         results = pd.DataFrame()
         infer_data = {}
