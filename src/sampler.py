@@ -41,10 +41,10 @@ class Sampler:
                 print(f"\n> Getting samples using the PYMC sampler {s}")
                 with model:
                     data, metrics = sampling_pymc(s,
-                        draws=draws,
-                        tune=tune,
-                        chains=chains,
-                        seed=seed)
+                                                  draws=draws,
+                                                  tune=tune,
+                                                  chains=chains,
+                                                  seed=seed)
                     results.append((s, data, metrics))
             return results
         if type_ == 2:
@@ -85,10 +85,14 @@ def sampling_pymc(sampler, draws: int, tune: int,
 def sampling_numpyro(model, draws: int, tune: int,
                      chains: int, model_args) -> az.InferenceData:
     rng_key = random.PRNGKey(0)
-    mcmc = infer.MCMC(model, num_warmup=tune, num_samples=draws, num_chains=chains)
+    mcmc = infer.MCMC(
+        model,
+        num_warmup=tune,
+        num_samples=draws,
+        num_chains=chains)
     mcmc.run(
         rng_key,
         **model_args)
 
-    data = az.from_numpyro(mcmc)
+    data = az.from_numpyro(mcmc, log_likelihood=False)
     return data
