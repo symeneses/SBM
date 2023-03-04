@@ -2,9 +2,10 @@ from typing import List
 
 import pandas as pd
 import seaborn as sns
+from matplotlib import pyplot as plt
 
 
-def plot_ess_ps(results: pd.DataFrame, summaries: List):
+def plot_ess_ps(results: pd.DataFrame, summaries: List, data_sizes: List[int]):
     if "ess_mean/s" not in results.columns:
         for k, s in summaries.items():
             results.loc[k, "ess_mean/s"] = s["ess_mean"].min() / \
@@ -14,20 +15,39 @@ def plot_ess_ps(results: pd.DataFrame, summaries: List):
     else:
         print("Using 'ESS per Second' previously calculated")
 
-    df = pd.melt(results[["library",
-                          "sampler",
-                          "ess_mean/s",
-                          "ess_tail/s"]],
+    df = results[results["size"].isin(data_sizes)]
+    df = pd.melt(df[["library",
+                     "sampler",
+                     "size",
+                     "ess_mean/s",
+                     "ess_tail/s"]],
                  id_vars=["library",
+                          "size",
                           "sampler"],
                  var_name="metric",
                  value_name="ESS/S")
-    df["sampler"] = df[["library", "sampler"]].apply(
+    df["sampler "] = df[["library", "sampler"]].apply(
         lambda row: '_'.join(row.values.astype(str)), axis=1)
-    sns.barplot(
-        data=df,
-        x="sampler",
-        y="ESS/S",
-        hue="metric",
-        palette="pastel")
+    df = df.sort_values("ESS/S", ascending=False)
+
+    if len(data_sizes) == 1:
+        g = sns.barplot(df,
+                        x="sampler ",
+                        y="ESS/S",
+                        hue="metric",
+                        palette="pastel")
+        g.set_title(
+            f'ESS/S with {data_sizes[0]} rows')
+        plt.legend(loc='upper right')
+    if len(data_sizes) > 1:
+        g = sns.FacetGrid(df, height=5, col="metric")
+        g.map_dataframe(sns.lineplot,
+                        x="size",
+                        y="ESS/S",
+                        hue="sampler ",
+                        style="library",
+                        dashes=False,
+                        markers=True,
+                        palette="pastel")
+        g.add_legend()
     return
