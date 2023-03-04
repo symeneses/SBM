@@ -28,36 +28,46 @@ PYMC_SAMPLERS = {
 
 
 class Sampler:
-    def __init__(self, data: pd.DataFrame, pymc_samplers: List[str]) -> None:
-        self.data = data
+    def __init__(self,
+                 datasets: Dict[str,
+                                pd.DataFrame],
+                 pymc_samplers: List[str]) -> None:
+        self.datasets = datasets
         self.pymc_samplers = pymc_samplers
 
-    def fit(self, model, draws: int, tune: int, chains: int, seed: int,
+    def fit(self, generator, draws: int, tune: int, chains: int, seed: int,
             model_args: Dict = {}) -> Tuple[List[az.InferenceData], Dict]:
         results = []
-        type_ = Sampler._get_type(model)
+        type_ = Sampler._get_type(generator)
         if type_ == 1:
-            for s in self.pymc_samplers:
-                print(f"\n> Getting samples using the PYMC sampler {s}")
-                with model:
-                    data, metrics = sampling_pymc(s,
-                                                  draws=draws,
-                                                  tune=tune,
-                                                  chains=chains,
-                                                  seed=seed)
-                    results.append((s, data, metrics))
+            for k, d in self.datasets.items():
+                print(f"\n>> Getting samples for data with size {k}")
+                model = generator(d)
+                for s in self.pymc_samplers:
+                    print(f"\n>>> Getting samples using the PYMC sampler {s}")
+                    with model:
+                        data, metrics = sampling_pymc(s,
+                                                      draws=draws,
+                                                      tune=tune,
+                                                      chains=chains,
+                                                      seed=seed)
+                        results.append((s, k, data, metrics))
             return results
         if type_ == 2:
-            args = getfullargspec(model.model).args
-            model_args = {a: self.data[a].values for a in args}
-            data, metrics = sampling_numpyro(model, draws, tune,
-                                             chains, model_args)
-            return [("default", data, metrics)]
+            args = getfullargspec(generator.model).args
+            for k, d in self.datasets.items():
+                print(f"\n>> Getting samples for data with size {k}")
+                model_args = {a: d[a].values for a in args}
+                data, metrics = sampling_numpyro(generator, draws, tune,
+                                                 chains, model_args)
+                results.append(("default", k, data, metrics))
+            return results
 
-    def _get_type(model) -> ModelType:
-        if isinstance(model, pm.model.Model):
+    def _get_type(generator) -> ModelType:
+        if callable(generator) and getfullargspec(
+                generator).annotations["return"] == pm.model.Model:
             return 1
-        if isinstance(model, infer.hmc.NUTS):
+        if isinstance(generator, infer.hmc.NUTS):
             return 2
 
 
@@ -82,11 +92,11 @@ def sampling_pymc(sampler, draws: int, tune: int,
 
 
 @monitor
-def sampling_numpyro(model, draws: int, tune: int,
+def sampling_numpyro(sampler, draws: int, tune: int,
                      chains: int, model_args) -> az.InferenceData:
     rng_key = random.PRNGKey(0)
     mcmc = infer.MCMC(
-        model,
+        sampler,
         num_warmup=tune,
         num_samples=draws,
         num_chains=chains)
