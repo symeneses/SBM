@@ -51,3 +51,32 @@ def plot_ess_ps(results: pd.DataFrame, summaries: List, data_sizes: List[int]):
                         palette="pastel")
         g.add_legend()
     return
+
+
+def plot_monitor(results: pd.DataFrame):
+    results["Peak Memory (MB)"] = results["peak_memory"] / 1e6
+    results["Elapsed time (m)"] = results["elapsed_time"] / 60
+    df = pd.melt(results[["library",
+                          "sampler",
+                          "size",
+                          "Elapsed time (m)",
+                          "Peak Memory (MB)"]],
+                 id_vars=["library",
+                          "size",
+                          "sampler"],
+                 var_name="metric",
+                 value_name="value")
+    df["sampler "] = df[["library", "sampler"]].apply(
+        lambda row: '_'.join(row.values.astype(str)), axis=1)
+
+    g = sns.FacetGrid(df, height=5, col="metric", sharey=False)
+    g.map_dataframe(sns.lineplot,
+                    x="size",
+                    y="value",
+                    hue="sampler ",
+                    style="library",
+                    dashes=False,
+                    markers=True,
+                    palette="pastel")
+    g.add_legend()
+    return
