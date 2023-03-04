@@ -1,4 +1,5 @@
 import random
+import warnings
 from typing import Dict
 
 import arviz as az
@@ -36,3 +37,15 @@ def dist_validator(infer_data: Dict, seed: int = None, ref_key: str = None):
               (f"{ref_key :<24} {indicator}"))
 
     return results, summaries
+
+
+def convergency_validator(infer_data: Dict):
+    print("Convergency test using R-hat:")
+
+    with warnings.catch_warnings():
+        for k, d in infer_data.items():
+            warnings.simplefilter("ignore")
+            rhat = max(az.rhat(d).max().values()).values
+            indicator = "\u2705" if rhat < 1.05 else "\u274C"
+            print(f"> {k:<24}: {rhat:>2.2f} {indicator}")
+    return
