@@ -2,6 +2,7 @@
 import os
 from enum import Enum
 from inspect import getfullargspec
+import subprocess
 from typing import Dict, List, Tuple
 
 import arviz as az
@@ -76,7 +77,13 @@ def sampling_pymc(sampler, draws: int, tune: int,
                   chains: int, seed: int) -> az.InferenceData:
     sampler_pymc = PYMC_SAMPLERS[sampler]
     extra_args = {}
-    if 'cores' in getfullargspec(sampler_pymc).args:
+    gpu = False
+    try:
+        subprocess.check_output('nvidia-smi')
+        gpu = True
+    except Exception:
+        gpu = False
+    if not gpu and 'cores' in getfullargspec(sampler_pymc).args:
         extra_args['cores'] = min(os.cpu_count(), chains)
     if 'progressbar' in getfullargspec(sampler_pymc).args:
         extra_args['progressbar'] = False
