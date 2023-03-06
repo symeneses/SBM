@@ -83,8 +83,10 @@ def sampling_pymc(sampler, draws: int, tune: int,
         gpu = True
     except Exception:
         gpu = False
-    if not gpu and 'cores' in getfullargspec(sampler_pymc).args:
+    if 'cores' in getfullargspec(sampler_pymc).args:
         extra_args['cores'] = min(os.cpu_count(), chains)
+    if gpu and 'chain_method' in getfullargspec(sampler_pymc).args:
+        extra_args['chain_method'] = "vectorized"
     if 'progressbar' in getfullargspec(sampler_pymc).args:
         extra_args['progressbar'] = False
     data = PYMC_SAMPLERS[sampler](
