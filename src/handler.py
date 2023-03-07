@@ -4,14 +4,14 @@ import pandas as pd
 
 from src.sampler import Sampler
 
-OUTPUT_PATH = "../data/results"
-
 
 class Handler:
-    def __init__(self, models, datasets, pymc_samplers) -> None:
+    def __init__(self, models, datasets, pymc_samplers,
+                 output_path="../data/results") -> None:
         self.models = models
         self.datasets = datasets
         self.pymc_samplers = pymc_samplers
+        self.output_path = output_path
 
     def execute(
             self,
@@ -32,6 +32,6 @@ class Handler:
                 results.loc[key, "size"] = int(s[1])
                 results.loc[key, s[3].keys()] = s[3].values()
                 infer_data[key] = s[2]
-                s[2].to_netcdf(f"{OUTPUT_PATH}/{key}.nc")
-        results.to_pickle(f"{OUTPUT_PATH}/results.pkl")
+                s[2].to_netcdf(f"{self.output_path}/{key}.nc")
+        results.to_pickle(f"{self.output_path}/results.pkl")
         return infer_data, results
