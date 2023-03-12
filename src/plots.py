@@ -35,7 +35,7 @@ def plot_ess_ps(results: pd.DataFrame, summaries: List, data_sizes: List[int]):
                         x="sampler ",
                         y="ESS/S",
                         hue="metric",
-                        palette="pastel")
+                        palette="Set2")
         g.set_title(
             f'ESS/S with {data_sizes[0]} rows')
         plt.legend(loc='upper right')
@@ -48,8 +48,11 @@ def plot_ess_ps(results: pd.DataFrame, summaries: List, data_sizes: List[int]):
                         style="library",
                         dashes=False,
                         markers=True,
-                        palette="pastel")
+                        palette="Set2",
+                        linewidth=4,
+                        alpha=0.5)
         g.add_legend()
+    plt.tight_layout()
     return
 
 
@@ -77,6 +80,9 @@ def plot_monitor(results: pd.DataFrame):
                     style="library",
                     dashes=False,
                     markers=True,
-                    palette="pastel")
+                    palette="Set2",
+                    linewidth=4,
+                    alpha=0.5)
     g.add_legend()
+    plt.tight_layout()
     return
