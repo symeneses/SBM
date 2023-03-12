@@ -58,7 +58,7 @@ class Sampler:
             args = getfullargspec(generator.model).args
             for k, d in self.datasets.items():
                 print(f"\n>> Getting samples for data with size {k}")
-                model_args = {a: d[a].values for a in args}
+                model_args = {a: d[a] for a in args}
                 data, metrics = sampling_numpyro(generator, draws, tune,
                                                  chains, model_args)
                 results.append(("default", k, data, metrics))
