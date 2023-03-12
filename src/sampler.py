@@ -89,6 +89,8 @@ def sampling_pymc(sampler, draws: int, tune: int,
         extra_args['chain_method'] = "vectorized"
     if 'progressbar' in getfullargspec(sampler_pymc).args:
         extra_args['progressbar'] = False
+    if 'compute_convergence_checks' in getfullargspec(sampler_pymc).args:
+        extra_args['compute_convergence_checks'] = False
     data = PYMC_SAMPLERS[sampler](
         draws=draws,
         tune=tune,
