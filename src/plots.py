@@ -93,6 +93,9 @@ def plot_monitor(results: pd.DataFrame):
                     palette="Set2",
                     linewidth=4,
                     alpha=0.5)
+    g.axes[0, 0].set_ylabel('minutes')
+    g.axes[0, 1].set_ylabel('MB')
+    g.axes[0, 0].tick_params(axis="x", labelrotation=45)
+    g.axes[0, 1].tick_params(axis="x", labelrotation=45)
     g.add_legend()
-    plt.tight_layout()
     return
