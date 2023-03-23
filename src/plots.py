@@ -5,7 +5,11 @@ import seaborn as sns
 from matplotlib import pyplot as plt
 
 
-def plot_ess_ps(results: pd.DataFrame, summaries: List, data_sizes: List[int]):
+def plot_ess_ps(
+        results: pd.DataFrame,
+        summaries: List,
+        data_sizes: List[int],
+        log_scale=False):
     if "ess_mean/s" not in results.columns:
         for k, s in summaries.items():
             results.loc[k, "ess_mean/s"] = s["ess_mean"].min() / \
@@ -51,7 +55,13 @@ def plot_ess_ps(results: pd.DataFrame, summaries: List, data_sizes: List[int]):
                         palette="Set2",
                         linewidth=4,
                         alpha=0.5)
-        g.add_legend()
+        if log_scale == "x":
+            g.set(xscale="log")
+        if log_scale == "y":
+            g.set(yscale="log")
+        plt.legend(loc='upper right')
+    g.axes[0, 0].tick_params(axis="x", labelrotation=45)
+    g.axes[0, 1].tick_params(axis="x", labelrotation=45)
     plt.tight_layout()
     return
 
