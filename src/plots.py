@@ -60,8 +60,8 @@ def plot_ess_ps(
         if log_scale == "y":
             g.set(yscale="log")
         plt.legend(loc='upper right')
-    g.axes[0, 0].tick_params(axis="x", labelrotation=45)
-    g.axes[0, 1].tick_params(axis="x", labelrotation=45)
+        g.axes[0, 0].tick_params(axis="x", labelrotation=45)
+        g.axes[0, 1].tick_params(axis="x", labelrotation=45)
     plt.tight_layout()
     return
 
