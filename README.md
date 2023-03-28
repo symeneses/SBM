@@ -1,5 +1,7 @@
 # SMB
-Scalable Bayesian Modelling: A comparison
+Scalable Bayesian Modelling: An updated benchmark
+
+For a detailed understanding of this work, its motivation and next steps, please refer to this [blog post](https://medium.com/@sandrayojana/scalable-bayesian-modeling-aec3edd2add). 
 
 ## Setting up the environment
 
