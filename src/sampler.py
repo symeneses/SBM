@@ -105,12 +105,22 @@ def sampling_pymc(sampler, draws: int, tune: int,
 @monitor
 def sampling_numpyro(sampler, draws: int, tune: int,
                      chains: int, model_args) -> az.InferenceData:
+    gpu = False
+    try:
+        subprocess.check_output('nvidia-smi')
+        gpu = True
+    except Exception:
+        gpu = False
+    chain_method = "parallel"
+    if gpu:
+        chain_method = "vectorized"
     rng_key = random.PRNGKey(0)
     mcmc = infer.MCMC(
         sampler,
         num_warmup=tune,
         num_samples=draws,
-        num_chains=chains)
+        num_chains=chains,
+        chain_method=chain_method)
     mcmc.run(
         rng_key,
         **model_args)
